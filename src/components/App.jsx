@@ -3,7 +3,6 @@ import { animateScroll as scroll } from 'react-scroll';
 import { Button } from './Button/Button';
 import { ErrorMessage } from './ErrorMessage/ErrorMessage';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-
 import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 import { SearchBar } from './SearchBar/SearchBar';
@@ -43,12 +42,6 @@ export class App extends Component {
 
     if (prevState.inputValue !== inputValue ||
       prevState.currentPage !== currentPage) {
-      
-      if (currentPage === 1) {
-        this.setState({
-          status: Status.PENDING,
-        })
-      }
       this.fetchImages();
 
       if (currentPage > 1) {
@@ -59,6 +52,9 @@ export class App extends Component {
 
   async fetchImages() {
     const { inputValue, currentPage } = this.state;
+    this.setState({
+      status: Status.PENDING,
+    })
     try {
       let { hits, totalHits } = await fetchAPI(inputValue, currentPage);
       this.setState(prevState => ({
@@ -67,6 +63,9 @@ export class App extends Component {
         status: Status.RESOLVE,
       }));
     } catch (error) {
+      this.setState({
+        status: Status.REJECTED,
+      })
       alert();
     }
   };

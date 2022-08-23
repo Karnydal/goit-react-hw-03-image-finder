@@ -30,7 +30,7 @@ export class App extends Component {
       inputValue: inputValue,
       images: [],
       currentPage: 1,
-    })
+    });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -40,21 +40,29 @@ export class App extends Component {
       return;
     }
 
-    if (prevState.inputValue !== inputValue ||
-      prevState.currentPage !== currentPage) {
+    if (
+      prevState.inputValue !== inputValue ||
+      prevState.currentPage !== currentPage
+    ) {
+      if (currentPage === 1) {
+        this.setState({
+          status: Status.PENDING,
+        });
+      }
+
       this.fetchImages();
 
       if (currentPage > 1) {
         scroll.scrollToBottom();
       }
     }
-  };
+  }
 
   async fetchImages() {
     const { inputValue, currentPage } = this.state;
     this.setState({
       status: Status.PENDING,
-    })
+    });
     try {
       let { hits, totalHits } = await fetchAPI(inputValue, currentPage);
       this.setState(prevState => ({
@@ -65,10 +73,10 @@ export class App extends Component {
     } catch (error) {
       this.setState({
         status: Status.REJECTED,
-      })
+      });
       alert();
     }
-  };
+  }
 
   handleIncrementCurrentPage = () => {
     this.setState(prevState => ({
@@ -78,25 +86,27 @@ export class App extends Component {
 
   getLargeImageUrl = url => {
     this.toggleModal();
-    this.setState({ modalImg: url })
+    this.setState({ modalImg: url });
   };
 
   toggleModal = () => {
     this.setState(({ showModal }) => ({
       showModal: !showModal,
-    }))
+    }));
   };
 
   render() {
-    const { showModal, status, images, modalImg, totalHits, currentPage } = this.state;
+    const { showModal, status, images, modalImg, totalHits, currentPage } =
+      this.state;
     const endOfHits = currentPage * 12 >= totalHits;
+
     return (
       <div>
         <SearchBar onSearch={this.getInputValue} />
-        {status === 'pending' && <Loader />}
-        {status === 'resolve' && (
+        {images.length > 0 && (
           <ImageGallery images={images} onClick={this.getLargeImageUrl} />
         )}
+        {status === 'pending' && <Loader />}
         {status === 'resolve' && !endOfHits && (
           <Button
             text={'Load more'}
@@ -112,5 +122,5 @@ export class App extends Component {
         )}
       </div>
     );
-  };  
-};
+  }
+}
